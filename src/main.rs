@@ -1,4 +1,6 @@
 use std::process::Command;
+use std::thread::sleep;
+use std::time::Duration;
 
 use clap::{value_t, App, Arg};
 use log::debug;
@@ -31,11 +33,16 @@ fn main() -> Result<(), failure::Error> {
     let interval = value_t!(matches, "interval", f64)?;
     debug!("command = {:?}", command);
     debug!("interval = {:?}", interval);
+    let interval10 = (interval * 10.0) as u32;
 
     let output = Command::new(command[0]).args(&command[1..]).output()?;
     debug!("output = {:?}", output);
     let output = String::from_utf8_lossy(&output.stdout);
     println!("{}", output);
+
+    for _ in 0..interval10 {
+        sleep(Duration::from_millis(100));
+    }
 
     Ok(())
 }
