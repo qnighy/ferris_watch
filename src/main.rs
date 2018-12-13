@@ -1,4 +1,6 @@
 use std::process::Command;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Arc;
 use std::thread::sleep;
 use std::time::Duration;
 
@@ -35,7 +37,11 @@ fn main() -> Result<(), failure::Error> {
     debug!("interval = {:?}", interval);
     let interval10 = (interval * 10.0) as u32;
 
-    loop {
+    let interrupted = Arc::new(AtomicBool::new(false));
+    signal_hook::flag::register(signal_hook::SIGINT, interrupted.clone())?;
+    let interrupted = || interrupted.load(Ordering::SeqCst);
+
+    'outer: loop {
         let output = Command::new(command[0]).args(&command[1..]).output()?;
         debug!("output = {:?}", output);
         let output = String::from_utf8_lossy(&output.stdout);
@@ -43,8 +49,15 @@ fn main() -> Result<(), failure::Error> {
 
         for _ in 0..interval10 {
             sleep(Duration::from_millis(100));
+            if interrupted() {
+                break 'outer;
+            }
+        }
+        if interrupted() {
+            break 'outer;
         }
     }
 
+    log::debug!("end");
     Ok(())
 }
