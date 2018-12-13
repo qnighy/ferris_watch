@@ -1,8 +1,11 @@
+use std::process::Command;
+
 use clap::{value_t, App, Arg};
+use log::debug;
 
 fn main() -> Result<(), failure::Error> {
     env_logger::init();
-    log::debug!("ferris_watch starting...");
+    debug!("ferris_watch starting...");
 
     let matches = App::new("ferris_watch")
         .version("0.1.0")
@@ -26,8 +29,13 @@ fn main() -> Result<(), failure::Error> {
 
     let command = matches.values_of("command").unwrap().collect::<Vec<_>>();
     let interval = value_t!(matches, "interval", f64)?;
-    eprintln!("{:?}", command);
-    eprintln!("{:?}", interval);
+    debug!("command = {:?}", command);
+    debug!("interval = {:?}", interval);
+
+    let output = Command::new(command[0]).args(&command[1..]).output()?;
+    debug!("output = {:?}", output);
+    let output = String::from_utf8_lossy(&output.stdout);
+    println!("{}", output);
 
     Ok(())
 }
