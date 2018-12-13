@@ -7,8 +7,6 @@ use std::time::Duration;
 use clap::{value_t, App, Arg};
 use log::debug;
 
-use signal_hook;
-
 fn main() -> Result<(), failure::Error> {
     env_logger::init();
     debug!("ferris_watch starting...");
