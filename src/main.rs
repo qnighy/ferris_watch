@@ -35,13 +35,15 @@ fn main() -> Result<(), failure::Error> {
     debug!("interval = {:?}", interval);
     let interval10 = (interval * 10.0) as u32;
 
-    let output = Command::new(command[0]).args(&command[1..]).output()?;
-    debug!("output = {:?}", output);
-    let output = String::from_utf8_lossy(&output.stdout);
-    println!("{}", output);
+    loop {
+        let output = Command::new(command[0]).args(&command[1..]).output()?;
+        debug!("output = {:?}", output);
+        let output = String::from_utf8_lossy(&output.stdout);
+        println!("{}", output);
 
-    for _ in 0..interval10 {
-        sleep(Duration::from_millis(100));
+        for _ in 0..interval10 {
+            sleep(Duration::from_millis(100));
+        }
     }
 
     Ok(())
