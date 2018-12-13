@@ -50,12 +50,33 @@ fn main() -> Result<(), failure::Error> {
     }
     let _endwin = EndWin;
 
+    let frame_out = {
+        let (h, w) = window.get_max_yx();
+        window.subwin(h - 5, w, 0, 0).unwrap()
+    };
+    let frame_in = {
+        let (height, width) = frame_out.get_max_yx();
+        window.subwin(height - 2, width - 2, 1, 1).unwrap()
+    };
+
     'outer: loop {
         let output = Command::new(command[0]).args(&command[1..]).output()?;
         debug!("output = {:?}", output);
-        let output = String::from_utf8_lossy(&output.stdout);
+        let stdout = String::from_utf8_lossy(&output.stdout);
         window.clear();
-        window.printw(output);
+        frame_out.clear();
+        frame_out.border('|', '|', '-', '-', '/', '\\', '\\', '/');
+        frame_in.clear();
+        frame_in.printw(output.status.to_string());
+        frame_in.printw("\n\n");
+        frame_in.printw(stdout);
+        window.mv(window.get_max_y() - 5, 0);
+        // AA taken from https://github.com/mgattozzi/ferris-says
+        window.printw("       \\\n");
+        window.printw("         _~^~^~_\n");
+        window.printw("     \\) /  o o  \\ (/\n");
+        window.printw("       '_   -   _'\n");
+        window.printw("       / '-----' \\\n");
         window.refresh();
 
         for _ in 0..interval10 {
