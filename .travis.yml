@@ -1,0 +1,68 @@
+language: rust
+sudo: false
+env:
+- APP_NAME=ferris_watch
+
+DEPLOY_TO_GITHUB: &DEPLOY_TO_GITHUB
+  deploy:
+    provider: releases
+    api_key: {}  # TODO
+    file_glob: true
+    file: dist/*
+    skip_cleanup: true
+    on:
+      tags: true
+
+jobs:
+  include:
+  - stage: "build"
+    name: "test"
+    dist: trusty
+    rust: stable
+    script:
+    - cargo test --all --locked
+    - rustup component add rustfmt-preview
+    - cargo fmt --all -- --check
+
+  - stage: "build"
+    name: "dist-linux"
+    # if: tag IS present
+    dist: trusty
+    rust: stable
+    addons:
+      apt:
+        packages:
+          - musl-tools
+    install:
+    - rustup target add x86_64-unknown-linux-musl
+    - rustup target add i686-unknown-linux-musl
+    script:
+    - .travis/build.sh x86_64-unknown-linux-musl
+    - .travis/build.sh i686-unknown-linux-musl
+    <<: *DEPLOY_TO_GITHUB
+
+  - stage: "build"
+    name: "dist-macos"
+    # if: tag IS present
+    os: osx
+    rust: stable
+    install:
+    - rustup target add i686-apple-darwin
+    script:
+    - .travis/build.sh x86_64-apple-darwin
+    - .travis/build.sh i686-apple-darwin
+    <<: *DEPLOY_TO_GITHUB
+
+  - stage: "build"
+    name: "dist-windows"
+    # if: tag IS present
+    os: windows
+    rust: stable
+    install:
+    - rustup target add i686-pc-windows-msvc
+    before_script:
+    - mkdir -p dist
+    script:
+    - .travis/build.sh x86_64-pc-windows-msvc
+    - .travis/build.sh i686-pc-windows-msvc
+    <<: *DEPLOY_TO_GITHUB
