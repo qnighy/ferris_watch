@@ -41,11 +41,22 @@ fn main() -> Result<(), failure::Error> {
     signal_hook::flag::register(signal_hook::SIGINT, interrupted.clone())?;
     let interrupted = || interrupted.load(Ordering::SeqCst);
 
+    let window = pancurses::initscr();
+    struct EndWin;
+    impl Drop for EndWin {
+        fn drop(&mut self) {
+            pancurses::endwin();
+        }
+    }
+    let _endwin = EndWin;
+
     'outer: loop {
         let output = Command::new(command[0]).args(&command[1..]).output()?;
         debug!("output = {:?}", output);
         let output = String::from_utf8_lossy(&output.stdout);
-        println!("{}", output);
+        window.clear();
+        window.printw(output);
+        window.refresh();
 
         for _ in 0..interval10 {
             sleep(Duration::from_millis(100));
