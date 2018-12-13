@@ -21,8 +21,7 @@ jobs:
     rust: stable
     script:
     - cargo test --all --locked
-    - rustup component add rustfmt-preview
-    - cargo fmt --all -- --check
+    - rustup component add rustfmt-preview && cargo fmt --all -- --check
 
   - stage: "build"
     name: "dist-linux"
