@@ -100,6 +100,8 @@ pub mod signal_hook {
     pub mod flag {
         use std::sync::atomic::AtomicBool;
         use std::sync::Arc;
-        pub fn register(_signal: i32, _flag: Arc<AtomicBool>) {}
+        pub fn register(_signal: i32, _flag: Arc<AtomicBool>) -> Result<(), failure::Error> {
+            Ok(())
+        }
     }
 }
