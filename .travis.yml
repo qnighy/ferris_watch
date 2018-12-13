@@ -32,6 +32,8 @@ jobs:
       apt:
         packages:
         - musl-tools
+        - libncurses5-dev
+        - libncurses5-dev:i386
         - libncursesw5-dev
         - libncursesw5-dev:i386
     install:
