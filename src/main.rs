@@ -7,6 +7,8 @@ use std::time::Duration;
 use clap::{value_t, App, Arg};
 use log::debug;
 
+use signal_hook;
+
 fn main() -> Result<(), failure::Error> {
     env_logger::init();
     debug!("ferris_watch starting...");
@@ -92,4 +94,14 @@ fn main() -> Result<(), failure::Error> {
 
     log::debug!("end");
     Ok(())
+}
+
+#[cfg(windows)]
+pub mod signal_hook {
+    pub const SIGINT: i32 = 2;
+    pub mod flag {
+        use std::sync::atomic::AtomicBool;
+        use std::sync::Arc;
+        pub fn register(_signal: i32, _flag: Arc<AtomicBool>) {}
+    }
 }
