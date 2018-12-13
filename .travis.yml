@@ -31,7 +31,9 @@ jobs:
     addons:
       apt:
         packages:
-          - musl-tools
+        - musl-tools
+        - libncursesw5-dev
+        - libncursesw5-dev:i386
     install:
     - rustup target add x86_64-unknown-linux-musl
     - rustup target add i686-unknown-linux-musl
@@ -45,6 +47,10 @@ jobs:
     # if: tag IS present
     os: osx
     rust: stable
+    addons:
+      homebrew:
+        packages:
+        - ncursesw
     install:
     - rustup target add i686-apple-darwin
     script:
